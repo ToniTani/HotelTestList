@@ -28,6 +28,15 @@ namespace HotelTestList
         {
 
             services.AddControllers();
+
+            services.AddCors(t => {
+            t.AddPolicy("AllowAllConnection", builder =>
+            builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+            
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelTestList", Version = "v1" });
@@ -40,11 +49,15 @@ namespace HotelTestList
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelTestList v1"));
+
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelTestList v1"));
+
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAllConnection");
 
             app.UseRouting();
 
