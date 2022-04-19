@@ -1,3 +1,5 @@
+using AutoMapper;
+using HotelTestList.Configurations;
 using HotelTestList.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,6 +43,8 @@ namespace HotelTestList
             .AllowAnyHeader());
             
             });
+
+            services.AddAutoMapper(typeof(MapperInitializer));
 
             services.AddSwaggerGen(c =>
             {
