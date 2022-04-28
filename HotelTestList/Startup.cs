@@ -1,6 +1,8 @@
 using AutoMapper;
 using HotelTestList.Configurations;
 using HotelTestList.Data;
+using HotelTestList.IRepository;
+using HotelTestList.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -45,11 +47,15 @@ namespace HotelTestList
             });
 
             services.AddAutoMapper(typeof(MapperInitializer));
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelTestList", Version = "v1" });
             });
+
+            services.AddControllers().AddNewtonsoftJson(op => op.SerializerSettings.ReferenceLoopHandling =
+            Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +80,9 @@ namespace HotelTestList
 
             app.UseEndpoints(endpoints =>
             {
+   //             endpoints.MapControllerRoute(
+   //                 name: "default",
+   //                 pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllers();
             });
         }
