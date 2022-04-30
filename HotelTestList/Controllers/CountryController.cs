@@ -39,7 +39,23 @@ namespace HotelTestList.Controllers
             {
                 _logger.LogError(ex, $"somethin went wrong! in {nameof(GetCountries)}");
                 return BadRequest("Submitted data is invalid");
-                throw;
+                
+            }
+        }
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetCountry(int id)
+        {
+            try
+            {
+                var country = await _unitOfWork.Countries.Get(q => q.Id == id, new List<string> { "Hotels"});
+                var results = _mapper.Map<CountryDTO>(country);
+                return Ok(country);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"somethin went wrong! in {nameof(GetCountry)}");
+                return BadRequest("Submitted data is invalid");
+
             }
         }
     }
