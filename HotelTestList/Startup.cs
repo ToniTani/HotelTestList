@@ -3,6 +3,7 @@ using HotelTestList.Configurations;
 using HotelTestList.Data;
 using HotelTestList.IRepository;
 using HotelTestList.Repository;
+using HotelTestList.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -39,6 +40,7 @@ namespace HotelTestList
 
             services.AddAuthentication();
             services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
 
             services.AddControllers();
 
@@ -52,6 +54,7 @@ namespace HotelTestList
 
             services.AddAutoMapper(typeof(MapperInitializer));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAuthManager, AuthManager>();
 
             services.AddSwaggerGen(c =>
             {
