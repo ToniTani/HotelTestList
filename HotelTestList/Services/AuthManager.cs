@@ -16,13 +16,10 @@ namespace HotelTestList.Services
 {
     public class AuthManager : IAuthManager
     {
-
         private readonly UserManager<ApiUser> _userManager;
         private readonly IConfiguration _configuration;
         private ApiUser _user;
-
-
-        public AuthManager(UserManager<ApiUser> userManager, 
+        public AuthManager(UserManager<ApiUser> userManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
@@ -40,24 +37,26 @@ namespace HotelTestList.Services
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
-            var jwtSettings = _configuration.GetSection("JWT");
+            var jwtSettings = _configuration.GetSection("Jwt");
             var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(
                 jwtSettings.GetSection("Lifetime").Value));
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings.GetSection("Issuer").Value,
                 claims: claims,
+                expires: expiration,
                 signingCredentials: signingCredentials
                 );
+
             return token;
         }
 
         private async Task<List<Claim>> GetClaims()
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, _user.UserName)
-            };
+             {
+                 new Claim(ClaimTypes.Name, _user.UserName)
+             };
 
             var roles = await _userManager.GetRolesAsync(_user);
 
@@ -65,12 +64,13 @@ namespace HotelTestList.Services
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
+
             return claims;
         }
 
-        private SigningCredentials GetSigningCredentials()
+        private static SigningCredentials GetSigningCredentials()
         {
-            var key = Environment.GetEnvironmentVariable("KEY");
+            var key = Environment.GetEnvironmentVariable("Key");
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
@@ -79,7 +79,8 @@ namespace HotelTestList.Services
         public async Task<bool> ValidateUser(LoginUserDTO userDTO)
         {
             _user = await _userManager.FindByNameAsync(userDTO.Email);
-            return (_user != null && await _userManager.CheckPasswordAsync(_user, userDTO.Password));
+            var validPassword = await _userManager.CheckPasswordAsync(_user, userDTO.Password);
+            return (_user != null && validPassword);
         }
     }
 }
