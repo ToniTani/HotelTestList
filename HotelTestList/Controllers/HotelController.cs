@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HotelTestList.IRepository;
 using HotelTestList.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -49,7 +50,8 @@ namespace HotelTestList.Controllers
         }
 
         // GET api/<HotelController>/5
-        [HttpGet("{id}")]
+        [Authorize]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetHotel(int id)
         {
             try

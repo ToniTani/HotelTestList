@@ -79,9 +79,11 @@ namespace HotelTestList
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowAllConnection");
+            app.UseCors("AllowAll");
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
