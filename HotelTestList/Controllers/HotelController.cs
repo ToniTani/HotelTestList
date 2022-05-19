@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HotelTestList.Data;
 using HotelTestList.IRepository;
 using HotelTestList.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -50,8 +51,10 @@ namespace HotelTestList.Controllers
         }
 
         // GET api/<HotelController>/5
-        [Authorize]
-        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpGet("{id:int}", Name = "GetHotel")]
         public async Task<IActionResult> GetHotel(int id)
         {
             try
@@ -69,9 +72,33 @@ namespace HotelTestList.Controllers
         }
 
         // POST api/<HotelController>
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateHotel([FromBody] CreateHotelDTO hotelDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogInformation($"Invalid POST attempt {nameof(CreateHotel)}");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var hotel = _mapper.Map<Hotel>(hotelDTO);
+                await _unitOfWork.Hotels.Insert(hotel);
+                await _unitOfWork.Save();
+
+                return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, $"somethin went wrong! in {nameof(CreateHotel)}");
+                return BadRequest("Submitted data is invalid");
+            }
         }
 
         // PUT api/<HotelController>/5
