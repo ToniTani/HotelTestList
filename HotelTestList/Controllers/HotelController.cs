@@ -134,13 +134,40 @@ namespace HotelTestList.Controllers
 
                 _logger.LogError(ex, $"somethin went wrong! in {nameof(UpdateHotel)}");
                 return StatusCode(500, "Internal Server Error. Please try again later!");
-            }  
+            }
         }
 
         // DELETE api/<HotelController>/5
+        [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteHotel(int id)
         {
+            if (id < 1)
+            {
+                _logger.LogError($"Invalid DELETE attemp in {nameof(DeleteHotel)}");
+                return BadRequest();
+            }
+            try
+            {
+                var hotel = await _unitOfWork.Hotels.Get(q => q.Id == id);
+                if (hotel == null)
+                {
+                    _logger.LogError($"Invalid DELETE attemp in {nameof(DeleteHotel)}");
+                    return BadRequest("Submitted data is invalid");
+                }
+
+                await _unitOfWork.Hotels.Delete(id);
+                await _unitOfWork.Save();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"somethin went wrong! in {nameof(DeleteHotel)}");
+                return StatusCode(500, "Internal Server Error. Please try again later!");
+            }
         }
     }
 }
