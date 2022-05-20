@@ -61,36 +61,6 @@ namespace HotelTestList.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCountry([FromBody] CreateCountryDTO countryDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogInformation($"Invalid POST attempt {nameof(CreateCountry)}");
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var hotel = _mapper.Map<C>(countryDTO);
-                await _unitOfWork.Hotels.Insert(hotel);
-                await _unitOfWork.Save();
-
-                return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
-            }
-            catch (Exception ex)
-            {
-
-                _logger.LogError(ex, $"somethin went wrong! in {nameof(CreateCountry)}");
-                return BadRequest("Submitted data is invalid");
-            }
-        }
-
-
-        [Authorize]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
